@@ -1,37 +1,44 @@
 package utils
 
 import (
-	"database/sql"
 	"fmt"
+	"lms/models" // Import your models
 	"log"
 
-	_ "github.com/denisenkom/go-mssqldb" // SQL Server driver
+	"gorm.io/driver/sqlserver"
+	"gorm.io/gorm"
 )
 
-func InitDB() *sql.DB {
+var DB *gorm.DB
 
-	server := "localhost"    // Use "localhost" or "127.0.0.1"
-	port := 1433             // Default SQL Server port
-	user := "sa"             // SQL Server username
-	password := "qwaszx1234" // SQL Server password
-	database := "library_db" // Database name
+func InitDB() *gorm.DB {
+
+	// Database connection details
+	server := "localhost"
+	port := 1433
+	user := "sa"
+	password := "qwaszx1234" 
+	database := "library_db"
 
 	// Connection string for MS SQL Server
-	connectionString := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%d;database=%s;",
-		server, user, password, port, database)
+	connectionString := fmt.Sprintf("sqlserver://%s:%s@%s:%d?database=%s",
+		user, password, server, port, database)
 
-	// Open the connection
-	db, err := sql.Open("sqlserver", connectionString)
+	// Open the connection using GORM and SQL Server driver
+	db, err := gorm.Open(sqlserver.Open(connectionString), &gorm.Config{})
 	if err != nil {
-		log.Fatal("Error creating connection pool: ", err)
+		log.Fatal("Failed to connect to the database: ", err)
 	}
 
-	// Test the connection
-	err = db.Ping()
+	// Store the DB connection in the global variable for use in the application
+	DB = db
+
+	// Automatically migrate the models (creates tables if they don't exist)
+	err = db.AutoMigrate(&models.Book{}, &models.User{}, &models.BorrowedBook{}, &models.Rating{})
 	if err != nil {
-		log.Fatal("Error pinging database: ", err)
+		log.Fatal("Failed to migrate models: ", err)
 	}
 
-	fmt.Println("Connected to MS SQL Server!")
+	fmt.Println("Database migration completed successfully!")
 	return db
 }

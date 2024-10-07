@@ -1,24 +1,22 @@
 package main
 
 import (
-	"fmt"
-	"lms/utils" // Import your utils package
-	"log"
+	"lms/routes"
+	"lms/utils"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	// Initialize the database connection
-	db := utils.InitDB()
+	// Initialize the database and migrate models
+	utils.InitDB()
 
-	// Defer closing the connection until the main function finishes
-	defer func() {
-		err := db.Close()
-		if err != nil {
-			log.Fatal("Error closing the database: ", err)
-		} else {
-			fmt.Println("Database connection closed.")
-		}
-	}()
+	// Initialize the Gin router
+	router := gin.Default()
 
-	fmt.Println("Database connection successful!")
+	// Setup routes
+	routes.SetupRoutes(router)
+
+	// Start the server on port 8080
+	router.Run(":8080")
 }
