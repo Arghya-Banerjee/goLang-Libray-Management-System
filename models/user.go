@@ -1,8 +1,8 @@
 package models
 
 type User struct {
-	ID       int    `json:"id" gorm:"primaryKey"` // Primary key (User ID)
-	Name     string `json:"name"`                 // Name of the user
-	Email    string `json:"email" gorm:"unique"`  // Email (unique identifier for each user)
-	Password string `json:"-"`                    // User's password (hidden in responses)
+	ID       int    `json:"id" gorm:"primaryKey"`
+	Name     string `json:"name"`
+	Email    string `json:"email" gorm:"unique"` // Ensure the email is unique
+	Password string `json:"password"`            // The password field
 }
