@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"lms/models"
 	"lms/utils"
 	"net/http"
@@ -12,7 +11,7 @@ import (
 // GetBooks retrieves all books from the database
 func GetBooks(c *gin.Context) {
 	var books []models.Book
-	result := utils.DB.Raw("EXEC GetAllBooks").Scan(&books)
+	result := utils.DB.Raw("EXEC usp_GetAllBooks").Scan(&books)
 	if result.Error != nil {
 		// fmt.Println("Error executing stored procedure:", result.Error)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
@@ -31,7 +30,7 @@ func AddBook(c *gin.Context) {
 	}
 	var newBook models.Book
 	result := utils.DB.Raw(
-		"EXEC dbo.AddBook @Title = ?, @Author = ?, @Genre = ?, @Stock = ?, @Rating = ?;",
+		"EXEC usp_AddBook @Title = ?, @Author = ?, @Genre = ?, @Stock = ?, @Rating = ?;",
 		book.Title, book.Author, book.Genre, book.Stock, book.Rating,
 	).Scan(&newBook)
 
@@ -82,12 +81,10 @@ func DeleteBook(c *gin.Context) {
 	).Scan(&msg)
 
 	if result.Error != nil {
-		fmt.Println("Error executing stored procedure:", result.Error)
+		// fmt.Println("Error executing stored procedure:", result.Error)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
 	} else {
-		fmt.Println("Book Deleted Successfully")
+		// fmt.Println("Book Deleted Successfully")
 		c.JSON(http.StatusOK, msg)
 	}
-	// utils.DB.Delete(&book) // Delete the book from the database
-	// c.JSON(http.StatusOK, gin.H{"message": "Book deleted successfully!"})
 }

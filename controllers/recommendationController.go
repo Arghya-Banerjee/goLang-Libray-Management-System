@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"lms/models"
 	"lms/utils"
 	"net/http"
@@ -13,7 +14,15 @@ func RecommendBooks(c *gin.Context) {
 	var books []models.Book
 
 	// Fetch books with the highest ratings (you can limit this to top 5 or 10)
-	utils.DB.Order("rating DESC").Limit(5).Find(&books)
+	result := utils.DB.Raw(
+		"EXEC usp_RecommendBooks;",
+	).Scan(&books)
 
-	c.JSON(http.StatusOK, books)
+	if result.Error != nil {
+		fmt.Println("Error executing stored procedure: ", result.Error)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
+	} else {
+		fmt.Println("Recommended books successfully")
+		c.JSON(http.StatusOK, books)
+	}
 }
