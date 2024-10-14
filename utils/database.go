@@ -2,7 +2,7 @@ package utils
 
 import (
 	"fmt"
-	"lms/models" // Import your models
+	"lms/models"
 	"log"
 
 	"gorm.io/driver/sqlserver"
